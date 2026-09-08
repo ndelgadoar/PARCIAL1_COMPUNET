@@ -18,7 +18,7 @@ export class App {
     }
 
     settings(){
-        this.app.set("port",8081)
+        this.app.set("port",8082)
     }
 
     router(){
