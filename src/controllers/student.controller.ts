@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { StudentDocument, StudentInput } from "../models/student.model";
+import { StudentDocument, StudentInput,studentschema } from "../models/student.model";
 import { studentService } from "../services/student.service";
 
 class StudentController{
@@ -55,14 +55,27 @@ class StudentController{
     }
 
     // TODO (Reto 1 - Bulk create): validar que request.body sea un arreglo y delegar en studentService.bulkCreate
-    async bulkCreate(request: Request, response: Response){
-        const {email, reason} = request.body;
-        if 
+    async bulkcreate(request: Request, response: Response){
+    try{
+        const { created, skipped } = request.body;
+        if (!Array.isArray(created) || typeof created == String){
+            response.status(400).json({ message: "Body inválido: se espera { created: string[], skipped: boolean }" });
+            return;
+        }
+        const result = await studentService.bulkcreate({ created, skipped });
+        response.status(200).json(result);
+    }catch(error){
+        response.status(500).json(error);
     }
 
     // TODO (Reto 2 - Search): tomar los query params y delegar en studentService.search
     async search(request: Request, response: Response){
-        response.status(501).json({ message: "Not implemented" });
+    try{
+        const query = request.query as StudentSearchQuery;
+        const students = await studentService.search(query);
+        response.status(200).json(students);
+    }catch(error){
+        response.status(500).json(error);
     }
 
     // TODO (Reto 3 - Delete): validar el email y delegar en studentService.deleteStudent (404/mensaje si no existe)
